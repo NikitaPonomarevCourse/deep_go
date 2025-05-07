@@ -9,17 +9,17 @@ import (
 
 // go test -v homework_test.go
 
-type CircularQueue struct {
-	values      []int
+type CircularQueue[T int | int8 | int16 | int32 | int64] struct {
+	values      []T
 	startIdx    int
 	sizeOfQueue int
 }
 
-func NewCircularQueue(size int) CircularQueue {
-	return CircularQueue{values: make([]int, size), startIdx: 0, sizeOfQueue: 0}
+func NewCircularQueue[T int | int8 | int16 | int32 | int64](size int) CircularQueue[T] {
+	return CircularQueue[T]{values: make([]T, size), startIdx: 0, sizeOfQueue: 0}
 }
 
-func (q *CircularQueue) Push(value int) bool {
+func (q *CircularQueue[T]) Push(value T) bool {
 	if q.sizeOfQueue == len(q.values) {
 		return false
 	}
@@ -28,7 +28,7 @@ func (q *CircularQueue) Push(value int) bool {
 	return true
 }
 
-func (q *CircularQueue) Pop() bool {
+func (q *CircularQueue[T]) Pop() bool {
 	if q.Empty() {
 		return false
 	}
@@ -37,31 +37,31 @@ func (q *CircularQueue) Pop() bool {
 	return true
 }
 
-func (q *CircularQueue) Front() int {
+func (q *CircularQueue[T]) Front() T {
 	if q.Empty() {
 		return -1
 	}
 	return q.values[q.startIdx]
 }
 
-func (q *CircularQueue) Back() int {
+func (q *CircularQueue[T]) Back() T {
 	if q.Empty() {
 		return -1
 	}
 	return q.values[(q.startIdx+q.sizeOfQueue-1)%len(q.values)]
 }
 
-func (q *CircularQueue) Empty() bool {
+func (q *CircularQueue[T]) Empty() bool {
 	return q.sizeOfQueue == 0
 }
 
-func (q *CircularQueue) Full() bool {
+func (q *CircularQueue[T]) Full() bool {
 	return q.sizeOfQueue == len(q.values)
 }
 
 func TestCircularQueue(t *testing.T) {
 	const queueSize = 3
-	queue := NewCircularQueue(queueSize)
+	queue := NewCircularQueue[int](queueSize)
 
 	assert.True(t, queue.Empty())
 	assert.False(t, queue.Full())
