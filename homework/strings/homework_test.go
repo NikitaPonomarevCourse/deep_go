@@ -15,23 +15,38 @@ type COWBuffer struct {
 }
 
 func NewCOWBuffer(data []byte) COWBuffer {
-	return COWBuffer{} // need to implement
+	var refs int
+	refs++
+	return COWBuffer{data: data, refs: &refs} // need to implement
 }
 
 func (b *COWBuffer) Clone() COWBuffer {
-	return COWBuffer{} // need to implement
+	*b.refs++
+	return COWBuffer{data: b.data, refs: b.refs} // need to implement
 }
 
 func (b *COWBuffer) Close() {
-	// need to implement
+	*b.refs--
 }
 
 func (b *COWBuffer) Update(index int, value byte) bool {
-	return false // need to implement
+	if index < 0 || len(b.data) <= index {
+		return false
+	}
+	if *b.refs != 1 {
+		refs := 1
+		*b.refs--
+		b.refs = &refs
+		newData := make([]byte, len(b.data))
+		copy(newData, b.data)
+		b.data = newData
+	}
+	b.data[index] = value
+	return true // need to implement
 }
 
 func (b *COWBuffer) String() string {
-	return "" // need to implement
+	return unsafe.String(&b.data[0], len(b.data)) // need to implement
 }
 
 func TestCOWBuffer(t *testing.T) {
