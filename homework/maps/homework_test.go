@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmp"
 	"reflect"
 	"testing"
 
@@ -9,20 +10,20 @@ import (
 
 // go test -v homework_test.go
 
-type OrderedMap struct {
-	root *TreeNode
+type OrderedMap[K cmp.Ordered, V any] struct {
+	root *TreeNode[K, V]
 	size int
 }
 
-type TreeNode struct {
-	key   int
-	value int
-	left  *TreeNode
-	right *TreeNode
+type TreeNode[K cmp.Ordered, V any] struct {
+	key   K
+	value V
+	left  *TreeNode[K, V]
+	right *TreeNode[K, V]
 }
 
-func newTreeNode(key, value int, left *TreeNode, right *TreeNode) *TreeNode {
-	return &TreeNode{
+func newTreeNode[K cmp.Ordered, V any](key K, value V, left *TreeNode[K, V], right *TreeNode[K, V]) *TreeNode[K, V] {
+	return &TreeNode[K, V]{
 		key:   key,
 		value: value,
 		left:  left,
@@ -31,16 +32,16 @@ func newTreeNode(key, value int, left *TreeNode, right *TreeNode) *TreeNode {
 
 }
 
-func NewOrderedMap() OrderedMap {
-	return OrderedMap{
+func NewOrderedMap[K cmp.Ordered, V any]() OrderedMap[K, V] {
+	return OrderedMap[K, V]{
 		root: nil,
 		size: 0,
 	}
 }
 
-func (m *OrderedMap) Insert(key, value int) {
+func (m *OrderedMap[K, V]) Insert(key K, value V) {
 	if m.root != nil {
-		var curNode *TreeNode
+		var curNode *TreeNode[K, V]
 		curNode = m.root
 		for {
 			if curNode.key < key {
@@ -70,8 +71,8 @@ func (m *OrderedMap) Insert(key, value int) {
 	}
 }
 
-func (m *OrderedMap) Erase(key int) {
-	var curNode *TreeNode
+func (m *OrderedMap[K, V]) Erase(key K) {
+	var curNode *TreeNode[K, V]
 	curNode = m.root
 	if curNode != nil {
 		if curNode.key == key {
@@ -144,9 +145,9 @@ func (m *OrderedMap) Erase(key int) {
 	}
 }
 
-func (m *OrderedMap) Contains(key int) bool {
+func (m *OrderedMap[K, V]) Contains(key K) bool {
 	if m.root != nil {
-		var curNode *TreeNode
+		var curNode *TreeNode[K, V]
 		curNode = m.root
 		for {
 			if curNode.key < key {
@@ -169,17 +170,17 @@ func (m *OrderedMap) Contains(key int) bool {
 	return false
 }
 
-func (m *OrderedMap) Size() int {
+func (m *OrderedMap[K, V]) Size() int {
 	return m.size
 }
 
-func (m *OrderedMap) ForEach(action func(int, int)) {
+func (m *OrderedMap[K, V]) ForEach(action func(V, int)) {
 	if m.root != nil {
 		callFunction(m.root, action)
 	}
 }
 
-func callFunction(node *TreeNode, action func(int, int)) {
+func callFunction[K cmp.Ordered, V any](node *TreeNode[K, V], action func(V, int)) {
 	if node.left != nil {
 		callFunction(node.left, action)
 	}
@@ -190,7 +191,7 @@ func callFunction(node *TreeNode, action func(int, int)) {
 }
 
 func TestCircularQueue(t *testing.T) {
-	data := NewOrderedMap()
+	data := NewOrderedMap[int, int]()
 	assert.Zero(t, data.Size())
 
 	data.Insert(10, 10)
