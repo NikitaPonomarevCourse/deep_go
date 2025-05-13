@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -8,31 +9,38 @@ import (
 
 // go test -v homework_test.go
 
+var errNotFound = errors.New("constructor for such type not found")
+var errWrongTypeForConstructor = errors.New("constructor record have wrong type")
+
 type UserService struct {
-	// not need to implement
 	NotEmptyStruct bool
 }
 type MessageService struct {
-	// not need to implement
 	NotEmptyStruct bool
 }
 
 type Container struct {
-	// need to implement
+	constructors map[string]interface{}
 }
 
 func NewContainer() *Container {
-	// need to implement
-	return &Container{}
+	return &Container{constructors: make(map[string]interface{})}
 }
 
 func (c *Container) RegisterType(name string, constructor interface{}) {
-	// need to implement
+	c.constructors[name] = constructor
 }
 
 func (c *Container) Resolve(name string) (interface{}, error) {
-	// need to implement
-	return nil, nil
+	constructor, found := c.constructors[name]
+	if !found {
+		return nil, errNotFound
+	}
+	f, ok := constructor.(func() interface{})
+	if !ok {
+		return nil, errWrongTypeForConstructor
+	}
+	return f(), nil
 }
 
 func TestDIContainer(t *testing.T) {
