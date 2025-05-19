@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 	"unsafe"
@@ -72,6 +71,5 @@ func TestDefragmentation(t *testing.T) {
 
 	Defragment(fragmentedMemory, fragmentedPointers)
 	assert.True(t, reflect.DeepEqual(defragmentedMemory, fragmentedMemory))
-	fmt.Println(defragmentedPointers, fragmentedPointers)
 	assert.True(t, reflect.DeepEqual(defragmentedPointers, fragmentedPointers))
 }
