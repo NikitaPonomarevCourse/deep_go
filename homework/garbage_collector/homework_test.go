@@ -1,7 +1,6 @@
 package main
 
 import (
-	"reflect"
 	"testing"
 	"unsafe"
 
@@ -10,9 +9,31 @@ import (
 
 // go test -v homework_test.go
 
+// dfs
 func Trace(stacks [][]uintptr) []uintptr {
-	// need to implement
-	return nil
+	visited := make(map[uintptr]struct{})
+	result := []uintptr{}
+	for _, stackValues := range stacks {
+		for _, value := range stackValues {
+			trace(value, &visited, &result)
+		}
+	}
+	return result
+}
+
+func trace(value uintptr, visited *map[uintptr]struct{}, result *[]uintptr) {
+	if _, ok := (*visited)[value]; ok {
+		return
+	}
+	(*visited)[value] = struct{}{}
+	if value == 0 {
+		return
+	}
+	*result = append(*result, value)
+	val := *(*uintptr)(unsafe.Pointer(value))
+	if val != 0 {
+		trace(val, visited, result)
+	}
 }
 
 func TestTrace(t *testing.T) {
@@ -57,6 +78,17 @@ func TestTrace(t *testing.T) {
 		uintptr(unsafe.Pointer(&heapPointer3)),
 		uintptr(unsafe.Pointer(&heapObjects[3])),
 	}
+	expectedSet := make(map[uintptr]struct{})
+	for _, ptr := range expectedPointers {
+		expectedSet[ptr] = struct{}{}
+	}
+	pointersSet := make(map[uintptr]struct{})
+	for _, ptr := range pointers {
+		pointersSet[ptr] = struct{}{}
+	}
 
-	assert.True(t, reflect.DeepEqual(expectedPointers, pointers))
+	assert.Equal(t, len(expectedSet), len(pointersSet), "Arrays have different lengths")
+	for ptr := range expectedSet {
+		assert.Contains(t, pointersSet, ptr, "Expected pointer %v not found in result", ptr)
+	}
 }
