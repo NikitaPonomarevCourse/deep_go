@@ -22,18 +22,15 @@ func Trace(stacks [][]uintptr) []uintptr {
 }
 
 func trace(value uintptr, visited *map[uintptr]struct{}, result *[]uintptr) {
+	if value == 0 {
+		return
+	}
 	if _, ok := (*visited)[value]; ok {
 		return
 	}
 	(*visited)[value] = struct{}{}
-	if value == 0 {
-		return
-	}
 	*result = append(*result, value)
-	val := *(*uintptr)(unsafe.Pointer(value))
-	if val != 0 {
-		trace(val, visited, result)
-	}
+	trace(*(*uintptr)(unsafe.Pointer(value)), visited, result)
 }
 
 func TestTrace(t *testing.T) {
